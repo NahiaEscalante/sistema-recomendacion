@@ -37,21 +37,48 @@ st.markdown("""
     <div class="title-netflix">Nefli</div>
 """, unsafe_allow_html=True)
 
-# Configuración
+# Configuración de rutas
 POSTERS_FOLDER = "data/posters_test/"
 MOVIES_CSV = "data/ml-25/movies_test.csv"
+MOVIES_FULL = "data/ml-25/movies.csv"  # Este archivo contiene los géneros reales
 
+# 🔄 Cargar y combinar datos
 @st.cache_data
 def load_movies():
-    df_movies = pd.read_csv(MOVIES_CSV)
-    df_movies = df_movies[['movieId', 'title']].rename(columns={"movieId": "query_movie_id", "title": "query_title"})
-    return df_movies
+    df_test = pd.read_csv(MOVIES_CSV)
+    df_test = df_test[['movieId', 'title']].rename(columns={
+        "movieId": "query_movie_id",
+        "title": "query_title"
+    })
 
-df_movies = load_movies()
+    df_full = pd.read_csv(MOVIES_FULL)
+    df_full = df_full.rename(columns={
+        "movieId": "query_movie_id",
+        "title": "query_title"
+    })
 
-# Catálogo de películas
+    df_combined = pd.merge(df_test, df_full[['query_movie_id', 'genres']], on="query_movie_id", how="left")
+    return pd.merge(df_test, df_combined[['query_movie_id', 'genres']], on="query_movie_id", how="left")
+
+df_movies_with_genres = load_movies()
+
+# 🎯 Filtro visual
+all_genres = set()
+df_movies_with_genres['genres'].dropna().apply(lambda x: all_genres.update(x.split('|')))
+all_genres = sorted(list(all_genres))
+
+st.markdown("### 🎯 Filtrar por género:")
+selected_genre = st.selectbox("Selecciona un género:", ["Todos"] + all_genres)
+
+# 📌 Aplicar filtro si se selecciona un género
+if selected_genre != "Todos":
+    df_filtered = df_movies_with_genres[df_movies_with_genres['genres'].str.contains(selected_genre, na=False)]
+else:
+    df_filtered = df_movies_with_genres
+
+# 🎞️ Catálogo de películas
 st.markdown("### 🎞️ Catálogo completo de películas:")
-catalogo_movies = df_movies.drop_duplicates(subset="query_movie_id")
+catalogo_movies = df_filtered.drop_duplicates(subset="query_movie_id")
 cols = st.columns(5)
 
 for idx, row in catalogo_movies.iterrows():

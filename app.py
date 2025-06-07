@@ -181,7 +181,7 @@ cluster_names = (
     .rename(columns={'genre': 'main_genre'})
 )
 
-# Crear diccionario {label: n_cluster}
+# Crear diccionario 
 cluster_names['cluster_label'] = cluster_names['n_cluster'].astype(str) + " - " + cluster_names['main_genre']
 cluster_dict = dict(zip(cluster_names['cluster_label'], cluster_names['n_cluster']))
 

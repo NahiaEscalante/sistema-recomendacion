@@ -5,3 +5,5 @@ numpy
 Pillow
 seaborn
 matplotlib
+umap-learn
+matplotlib

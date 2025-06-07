@@ -3,7 +3,6 @@ import pandas as pd
 from PIL import Image
 import os
 
-# Estilo Netflix
 st.markdown("""
     <style>
     html, body, .stApp {
@@ -41,7 +40,7 @@ POSTERS_FOLDER = "data/posters_test/"
 POSTERS_FOLDER_SEC = "data/posters_new/"
 MOVIES_CSV = "data/ml-25/movies_test.csv"
 MOVIES_CSV_SEC = "data/ml-25/movies_train.csv"
-RECO_CSV = "data/submission_files/submission_kmeans_lda_k12.csv"
+RECO_CSV = "data/submission_files/submission_agglomerative_hierarchical_k12.csv"
 
 @st.cache_data
 def load_data():
@@ -55,15 +54,15 @@ df_reco, df_movies, df_movies_sec = load_data()
 # Obtener movie_id desde parámetros
 movie_id = int(st.query_params.get("movie_id", 0))
 
-# 🔒 Aseguramos tipos
+# Aseguramos tipos
 df_movies["query_movie_id"] = df_movies["query_movie_id"].astype(int)
 
-# 🔐 Validación
+# Validación
 if movie_id not in df_movies["query_movie_id"].values:
     st.error("No se encontró la película seleccionada.")
     st.stop()
 
-# ✅ Obtener título
+# Obtener título
 selected_title = df_movies[df_movies["query_movie_id"] == movie_id]["query_title"].values[0]
 st.subheader(f"Película seleccionada: {selected_title}")
 
@@ -89,7 +88,7 @@ for idx, rec_id in enumerate(recommended_ids[:10]):
         else:
             st.image("https://via.placeholder.com/150x220.png?text=No+Poster", caption=rec_title, use_container_width=True)
 
-# Botón para regresar
+# regresar
 if st.button("⬅️ Volver al catálogo"):
     st.markdown('<meta http-equiv="refresh" content="0; url=/">', unsafe_allow_html=True)
 
